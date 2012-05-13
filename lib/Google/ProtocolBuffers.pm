@@ -705,7 +705,7 @@ Names of fields, extensions and enum constants are not affected anyway.
 
 =item package_name (String)
 
-By default, the module will genearte the package name based on the package
+By default, the module will generate the package name based on the package
 directory structure. By passing this option to the parser, the package name
 can be over-written.
 
