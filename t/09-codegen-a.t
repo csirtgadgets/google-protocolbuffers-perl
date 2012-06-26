@@ -18,8 +18,12 @@ Google::ProtocolBuffers->parse(
         extend  R { optional int32 c = 11; }
     }
 
-", 
-    { create_accessors => 1, simple_extensions => 1, generate_code => $r_filename }
+",
+    {   create_accessors    => 1,
+        simple_extensions   => 1,
+        generate_code       => $r_filename,
+        package_name        => 'MyPackage::Name::NotUsed',
+    }
 );
 ok(-f $r_filename);
 
@@ -34,7 +38,7 @@ Google::ProtocolBuffers->parse(
     message UFoo {
         extend  U { optional int32 a = 11; }
     }
-", 
+",
     { create_accessors => 1, generate_code => $u_filename }
 );
 
@@ -42,7 +46,7 @@ my $t_filename = 't/UnitTest.pm';
 unlink($t_filename);
 ok(! -f $t_filename);
 Google::ProtocolBuffers->parsefile(
-    "google/protobuf/unittest.proto", 
+    "google/protobuf/unittest.proto",
     { include_dir => 't', generate_code => $t_filename, create_accessors => 1 }
 );
 ok(-f $t_filename);
