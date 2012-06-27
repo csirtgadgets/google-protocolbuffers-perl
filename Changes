@@ -17,4 +17,8 @@ Revision history for Perl extension Google::ProtoBuf.
                 'constant' v1.06 (for multiple constants declaration) and
                 'Test::More' v0.52 (for correct require_ok() in tests) 
             
+0.08_1  <date>
+            - Support for decoding of packed repeated fields
+            - new option: package_name for code generator
+            - bugfix in parser (floating point literals)
 

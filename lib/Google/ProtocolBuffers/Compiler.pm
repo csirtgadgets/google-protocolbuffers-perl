@@ -128,7 +128,7 @@ octInt      :   /[-+]?0[0-7]*/
 
 floatLit    :   ## Make floatLit do not match integer literals,
                 ## so that it doesn't take off '0' from '0xFFF' or '012' (oct).
-                /[-+]?\d+\.\d+?([Ee][\+-]?\d+)?/
+                /[-+]?\d*\.\d+([Ee][\+-]?\d+)?/
             |   /[-+]?\d+[Ee][\+-]?\d+/
             
 
