@@ -39,18 +39,18 @@ BEGIN {
     ## Maybe create and load one of two files, like CodecIV* above?
     my $bo = $Config{byteorder}; 
     if ($bo =~ '^1234') {
-    	## little-endian platform
+        ## little-endian platform
         *encode_float  = \&encode_float_le; 
         *decode_float  = \&decode_float_le; 
         *encode_double = \&encode_double_le; 
         *decode_double = \&decode_double_le; 
     } elsif ($bo =~ '4321$') {
-    	## big-endian
+        ## big-endian
         *encode_float  = \&encode_float_be; 
         *decode_float  = \&decode_float_be; 
         *encode_double = \&encode_double_be; 
         *decode_double = \&decode_double_be; 
-    }	
+    }
 }
 
 my @primitive_type_encoders;
@@ -134,7 +134,7 @@ sub encode
     my $data = (ref $self) ? $self : shift();
     
     ##unless (ref $data eq 'HASH') {
-    ##	my $class = ref $self || $self;
+    ##  my $class = ref $self || $self;
     ##    die "Hashref was expected for $self->encode; found '$data' instead";        
     ##}
 
@@ -268,10 +268,10 @@ sub decode {
     ## ($self->{pos}) to each method, but readability is poor. 
     my $pos = 0;
     if (Encode::is_utf8($_[0])) {
-    	## oops, wide-character string, where did you get it from?
-    	## Should we silently encode it to utf-8 and then process
-    	## the resulted byte-string?
-    	die "Input data string is a wide-character string";
+        ## oops, wide-character string, where did you get it from?
+        ## Should we silently encode it to utf-8 and then process
+        ## the resulted byte-string?
+        die "Input data string is a wide-character string";
     }
     return _decode_partial($class, $_[0], $pos, length($_[0]));
 }
@@ -294,7 +294,8 @@ sub _decode_partial {
 
     my $data = bless {}, $class;
     my $fields = $class->_pb_fields_by_number;
-     
+
+    PAIR:
     while ($_[1] < $end_position) {
         my $v = decode_varint($_[0], $_[1]);
         my ($field_number, $wire_type) = ($v>>3, $v&7);
@@ -317,7 +318,30 @@ sub _decode_partial {
             use warnings;
 
             if ($decoder) {
-                $value = $decoder->($_[0], $_[1]);
+                if ($wire_type==WIRETYPE_LENGTH_DELIMITED && $type!=TYPE_STRING && $type!=TYPE_BYTES) {
+                    ##
+                    ## Packed Repeated Fields:
+                    ## <length of the field>; sequence of encoded <primitive values>
+                    ##
+                    ## order is important - $_[1] changed by decode_varint()
+                    my $l = decode_varint($_[0], $_[1]);    ## length of the packed field
+                    my $e = $_[1] + $l;                     ## last position of the field
+
+                    my @values;
+                    while ($_[1]<$e) {
+                        push @values, $decoder->($_[0], $_[1]);
+                    }
+                    if ($cardinality==LABEL_REPEATED) {
+                        push @{$data->{$name}}, @values;
+                    } else {
+                        $data->{$name} = $values[-1];
+                    }
+                    next PAIR;
+
+                } else {
+                    ## regular primitive value, string or byte array
+                    $value = $decoder->($_[0], $_[1]);
+                }
             } else {
                 my $kind = $type->_pb_complex_type_kind;
                 if ($kind==MESSAGE) {
@@ -404,8 +428,8 @@ sub _skip_varint {
     my $c = 0;
     my $l = length($_[0]);
     while (1) {
-    	die BROKEN_MESSAGE() if $_[1] >= $l; ## if $_[1]+1 > $l 
-    	last if (ord(substr($_[0], $_[1]++, 1)) & 0x80) == 0;
+        die BROKEN_MESSAGE() if $_[1] >= $l; ## if $_[1]+1 > $l
+        last if (ord(substr($_[0], $_[1]++, 1)) & 0x80) == 0;
         die "Varint is too long" if ++$c>=9;
     }
 }

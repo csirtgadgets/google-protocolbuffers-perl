@@ -1,4 +1,4 @@
-use Test::More tests => 168;
+use Test::More tests => 169;
 use strict;
 use warnings;
 use Google::ProtocolBuffers;
@@ -655,4 +655,11 @@ is_deeply($data->{repeated_cord}, ["a"], "repeated_cord=[\\x{22}a\\x{22}]");
 
 $data = ProtobufUnittest::TestAllTypes->decode("\x{ba}\x{03}\x{01}a\x{ba}\x{03}\x{01}b\x{ba}\x{03}\x{02}\x{0d}\x{0a}");
 is_deeply($data->{repeated_cord}, ["a", "b", "\x{0d}\x{0a}"], "repeated_cord=[\\x{22}a\\x{22}, \\x{22}b\\x{22}, \\x{22}\\x{5c}x{0d}\\x{5c}x{0a}\\x{22}]");
+
+
+##
+## repeated packed format
+##
+$data = ProtobufUnittest::TestAllTypes->decode("\x{fa}\x{01}\x{06}\x{03}\x{8e}\x{02}\x{9e}\x{a7}\x{05}\x{b2}\x{03}\x{01}a");
+is_deeply($data, { repeated_int32 => [3, 270, 86942], repeated_string_piece=>["a"]}, "repeated_int32:packed_format");
 
