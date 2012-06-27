@@ -1,5 +1,5 @@
-Google-ProtoBuf version 0.01
-============================
+Google-ProtocolBuffers
+======================
 
 Google Protocol Buffers is a data serialization format. 
 It is binary (and hence compact and fast for serialization) 
@@ -26,10 +26,9 @@ This module requires these other modules and libraries:
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2008 by Igor Gariev, <gariev@hotmail.com>
+Copyright (C) 2012 by Igor Gariev, <gariev@hotmail.com>
+Copyright (C) 2012 by Wes Young, <wesyoung.me>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.0 or,
 at your option, any later version of Perl 5 you may have available.
-
-
