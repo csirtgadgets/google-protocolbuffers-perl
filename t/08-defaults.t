@@ -148,8 +148,8 @@ Google::ProtocolBuffers->parse("
         required float f2   = 2  [ default = -1         ]; 
         required float f3   = 3  [ default =  1.25      ]; 
         required float f4   = 4  [ default =  1e3       ]; 
-        required double f5  = 5  [ default =  1.25e3    ]; 
-        required double f6  = 6  [ default =  1.25e-3   ]; 
+        required float f5   = 5  [ default =  1.25e3    ]; 
+        required float f6   = 6  [ default =  1.25e-3   ]; 
         required float f7   = 7  [ default =  .25       ]; 
         required float f8   = 8  [ default = -.25e-2    ]; 
         required float f9   = 9  [ default = -.25e2     ]; 

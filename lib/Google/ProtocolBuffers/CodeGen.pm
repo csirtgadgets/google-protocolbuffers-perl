@@ -42,8 +42,7 @@ sub _get_perl_literal {
         } else {
             return "$v";
         }
-        
-    } elsif ($v =~ /^-?\d+(\.\d+)?([Ee][\+-]?\d+)?$/i) {
+     } elsif ($v =~ /[-+]?\d*\.\d+([Ee][\+-]?\d+)?|[-+]?\d+[Ee][\+-]?\d+/i) {        
         ## floating point literal
         return "$v";
     } else {
