@@ -5,3 +5,10 @@ perl:
   - "5.12"
   - "5.10"
   - "5.8"
+branches:
+    only:
+        - stable
+notifications:
+    email:
+        on_success: never
+        on_failure: always

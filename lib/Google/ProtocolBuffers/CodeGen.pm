@@ -34,7 +34,7 @@ my %labels = reverse (
 sub _get_perl_literal {
     my $v = shift;
     my $opts = shift;
-    
+   
     if ($v =~ /^-?\d+$/) {
         ## integer literal
         if ($v>0x7fff_ffff || $v<-0x8000_0000) {

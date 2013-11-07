@@ -1,4 +1,4 @@
-use Test::More tests => 55;
+use Test::More;
 use strict;
 use warnings;
 use Google::ProtocolBuffers;
@@ -144,18 +144,21 @@ is($data->utf8_string, "\341\210\264");
 ##
 Google::ProtocolBuffers->parse("
     message TestFP {
-        required float f1 = 1 [default =  1         ]; 
-        required float f2 = 2 [default = -1         ]; 
-        required float f3 = 3 [default =  1.25      ]; 
-        required float f4 = 4 [default =  1e3       ]; 
-        required float f5 = 5 [default =  1.25e3    ]; 
-        required float f6 = 6 [default =  1.25e-3   ]; 
-        required float f7 = 7 [default =   .25      ]; 
-        required float f8 = 8 [default =  -.25e-2   ]; 
-        required float f9 = 9 [default =  -0.25e-2  ]; 
+        required float f1   = 1  [ default =  1         ]; 
+        required float f2   = 2  [ default = -1         ]; 
+        required float f3   = 3  [ default =  1.25      ]; 
+        required float f4   = 4  [ default =  1e3       ]; 
+        required double f5  = 5  [ default =  1.25e3    ]; 
+        required double f6  = 6  [ default =  1.25e-3   ]; 
+        required float f7   = 7  [ default =  .25       ]; 
+        required float f8   = 8  [ default = -.25e-2    ]; 
+        required float f9   = 9  [ default = -.25e2     ]; 
+        required float f10  = 10 [ default = 52.12e5    ];
+        required float f11  = 11 [ default = -52.12e-5  ];
     }
 ");
 $data = TestFP->decode( TestFP->encode({}) );
+
 my $fpLimit = 0.0000001;
 ok( abs($data->{f1} - 1)        <= $fpLimit, "Default floating point value f1" );
 ok( abs($data->{f2} + 1)        <= $fpLimit, "Default floating point value f2" );
@@ -163,10 +166,10 @@ ok( abs($data->{f3} - 1.25)     <= $fpLimit, "Default floating point value f3" )
 ok( abs($data->{f4} - 1e3)      <= $fpLimit, "Default floating point value f4" );
 ok( abs($data->{f5} - 1.25e3)   <= $fpLimit, "Default floating point value f5" );
 ok( abs($data->{f6} - 1.25e-3)  <= $fpLimit, "Default floating point value f6" );
-ok( abs($data->{f7} - .25)      <= $fpLimit, "Default floating point value f7" );
-ok( abs($data->{f8} + .25e-2)   <= $fpLimit, "Default floating point value f8" );
-ok( abs($data->{f9} + 0.25e-2)  <= $fpLimit, "Default floating point value f9" );
+ok( abs($data->{f7} - 0.25)     <= $fpLimit, "Default floating point value f7" );
+ok( abs($data->{f8} + 0.25e-2)  <= $fpLimit, "Default floating point value f8" );
+ok( abs($data->{f9} + 0.25e2)   <= $fpLimit, "Default floating point value f9" );
+ok( abs($data->{f10} - 52.12e5)  <= $fpLimit, "Default floating point value f10");
+ok( abs($data->{f11} + 52.12e-5) <= $fpLimit, "Default floating point value f11");
 
-__END__
-
-
+done_testing();
