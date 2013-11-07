@@ -1,0 +1,7 @@
+.travis.yml
+.tar.gz
+MANIFEST.SKIP
+MANIFEST.bak
+rebuild.sh
+.git
+dist.ini
