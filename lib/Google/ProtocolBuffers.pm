@@ -975,6 +975,7 @@ L<JSON> and L<YAML>
 =head1 AUTHOR, ACKNOWLEDGEMENS, COPYRIGHT
 
 Author: Igor Gariev <gariev@hotmail.com>
+        the CSIRT Gadgets Foundation <csirtgadgets.org>
 
 Proto grammar is based on work by Alek Storm
 L<http://groups.google.com/group/protobuf/browse_thread/thread/1cccfc624cd612da>
