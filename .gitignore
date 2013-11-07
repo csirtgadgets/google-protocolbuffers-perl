@@ -1,3 +1,11 @@
 t/MyTestR.pm
 t/MyTestU.pm
 t/UnitTest.pm
+MANIFEST
+META.yml
+META.json
+MYMETA.yml
+MYMETA.json
+Makefile
+inc/
+*.swp
