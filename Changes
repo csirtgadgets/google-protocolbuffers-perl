@@ -1,6 +1,6 @@
 Revision history for Perl extension Google::ProtocolBuffers
 
-0.09    2013-11
+0.09    2013-11-07
     - bugfixes:
         - parser (floating point literals, FloatLit in Compiler.pm)
         - parser fix for fp in CodeGen.pm
