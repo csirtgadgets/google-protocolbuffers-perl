@@ -1,4 +1,9 @@
 package Google::ProtocolBuffers;
+
+use 5.008008;
+use warnings;
+use strict;
+
 use Google::ProtocolBuffers::Codec;
 use Google::ProtocolBuffers::Constants qw/:complex_types :labels/;
 use Class::Accessor;
@@ -6,10 +11,7 @@ use Math::BigInt;
 use Carp;
 use Data::Dumper;
 
-use strict;
-use warnings;
-
-our $VERSION = "0.09";
+our $VERSION = "0.10";
 
 sub parsefile {
     my $self = shift;
