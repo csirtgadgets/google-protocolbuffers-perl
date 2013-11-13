@@ -3,33 +3,66 @@
 use strict;
 use warnings;
 
-use lib './lib';
-
 use Getopt::Long;
 use Data::Dumper;
 use Google::ProtocolBuffers;
 
 our $VERSION = $Google::ProtocolBuffers::VERSION;
 
-my $path        = '';
-my $help        = 0;
-my $debug       = 0;
-my $verbose     = 0;
-my $version     = 0;
-my $decode_raw  = 0;
-my $oFile       = 0;
-my $perl_out    = 0;
+my $path            = '';
+my $help            = 0;
+my $debug           = 0;
+my $verbose         = 0;
+my $version         = 0;
+my $decode_raw      = 0;
+my $oFile           = 0;
+my $perl_out        = 0;
+my $package_name    = '';
 
 GetOptions(
     'proto_path|I=s@'   => \$path,
     'help|h'            => \$help,
     'debug|d'           => \$debug,
     'verbose+'          => \$verbose,
-    'perl_out'          => \$perl_out,
+    'perl_out=s'        => \$perl_out,
     'version|v'         => \$version,
+    'package|p=s'       => \$package_name,
 );
+
+my $proto_files     = \@ARGV;
+$proto_files = @{$proto_files}[0];
 
 if($version){
     print "Google::ProtocolBuffers ".$VERSION."\n";
     exit(0);
 }
+
+die usage() if($help);
+
+sub usage {
+    return <<EOF;
+Usage: $0 [OPTION] PROTO_FILES
+Parse PROTO_FILES and generate output based on the options given:
+  -IPATH, --proto_path=PATH   Specify the directory in which to search for
+                              imports.  May be specified multiple times;
+                              directories will be searched in order.  If not
+                              given, the current working directory is used.
+  --version                   Show version info and exit.
+  -h, --help                  Show this text and exit.
+  
+  --perl_out=OUT_FILE         Generate the Perl source file.
+
+EOF
+}
+
+warn 'writing package '.$package_name.' to '.$perl_out if($debug);
+Google::ProtocolBuffers->parsefile(
+    $proto_files,
+    {
+        generate_code           => $perl_out,
+        create_accessors        => 1,
+        follow_best_practice    => 1,
+        include_dir             => $path,
+        package_name            => $package_name,
+    }
+);
