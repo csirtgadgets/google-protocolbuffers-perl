@@ -19,7 +19,7 @@ my $decode_raw      = 0;
 my $oFile           = 0;
 my $perl_out        = 0;
 my $package_name    = '';
-my $proto_file      = '';
+my $proto_file      = 0;
 
 GetOptions(
     'proto_path|I=s@'   => \$path,
@@ -48,7 +48,7 @@ if($version){
     exit(0);
 }
 
-die usage() if($help);
+die usage() if($help || !$proto_file);
 
 sub usage {
     return <<EOF;
