@@ -1,0 +1,35 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use lib './lib';
+
+use Getopt::Long;
+use Data::Dumper;
+use Google::ProtocolBuffers;
+
+our $VERSION = $Google::ProtocolBuffers::VERSION;
+
+my $path        = '';
+my $help        = 0;
+my $debug       = 0;
+my $verbose     = 0;
+my $version     = 0;
+my $decode_raw  = 0;
+my $oFile       = 0;
+my $perl_out    = 0;
+
+GetOptions(
+    'proto_path|I=s@'   => \$path,
+    'help|h'            => \$help,
+    'debug|d'           => \$debug,
+    'verbose+'          => \$verbose,
+    'perl_out'          => \$perl_out,
+    'version|v'         => \$version,
+);
+
+if($version){
+    print "Google::ProtocolBuffers ".$VERSION."\n";
+    exit(0);
+}
