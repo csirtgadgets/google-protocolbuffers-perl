@@ -47,7 +47,7 @@ sub _parse {
 
     require 'Google/ProtocolBuffers/Compiler.pm';
     my $types = Google::ProtocolBuffers::Compiler->parse($source, $opts);
-    
+   
     ## 
     ## 1. Create enums - they will be used as default values for fields
     ##

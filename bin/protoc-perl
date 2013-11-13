@@ -4,12 +4,13 @@ use strict;
 use warnings;
 
 use Getopt::Long;
+Getopt::Long::Configure("pass_through");
 use Data::Dumper;
 use Google::ProtocolBuffers;
 
 our $VERSION = $Google::ProtocolBuffers::VERSION;
 
-my $path            = '';
+my $path            = [];
 my $help            = 0;
 my $debug           = 0;
 my $verbose         = 0;
@@ -18,6 +19,7 @@ my $decode_raw      = 0;
 my $oFile           = 0;
 my $perl_out        = 0;
 my $package_name    = '';
+my $proto_file      = '';
 
 GetOptions(
     'proto_path|I=s@'   => \$path,
@@ -29,8 +31,17 @@ GetOptions(
     'package|p=s'       => \$package_name,
 );
 
-my $proto_files     = \@ARGV;
-$proto_files = @{$proto_files}[0];
+## TODO: multi-proto support
+$proto_file = $ARGV[$#ARGV];
+pop(@ARGV);
+
+# test for -Ilib
+foreach (@ARGV){
+    if(/^-I/){    
+        $_ =~ s/^-I//;
+        push(@{$path},$_);
+    }
+}
 
 if($version){
     print "Google::ProtocolBuffers ".$VERSION."\n";
@@ -41,8 +52,8 @@ die usage() if($help);
 
 sub usage {
     return <<EOF;
-Usage: $0 [OPTION] PROTO_FILES
-Parse PROTO_FILES and generate output based on the options given:
+Usage: $0 [OPTION] PROTO_FILE
+Parse PROTO_FILE and generate output based on the options given:
   -IPATH, --proto_path=PATH   Specify the directory in which to search for
                               imports.  May be specified multiple times;
                               directories will be searched in order.  If not
@@ -51,13 +62,13 @@ Parse PROTO_FILES and generate output based on the options given:
   -h, --help                  Show this text and exit.
   
   --perl_out=OUT_FILE         Generate the Perl source file.
-
+  
+Version: $VERSION
 EOF
 }
 
-warn 'writing package '.$package_name.' to '.$perl_out if($debug);
 Google::ProtocolBuffers->parsefile(
-    $proto_files,
+    $proto_file,
     {
         generate_code           => $perl_out,
         create_accessors        => 1,
