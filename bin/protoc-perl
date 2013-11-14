@@ -61,7 +61,8 @@ Parse PROTO_FILE and generate output based on the options given:
   --version                   Show version info and exit.
   -h, --help                  Show this text and exit.
   
-  --perl_out=OUT_FILE         Generate the Perl source file.
+  --perl_out=OUT_FILE         Generate the Perl source file. (eg: lib/App/MyPackage.pm)
+  -p, --package=NANE          Specify a package name (eg: App::MyPackage)
   
 Version: $VERSION
 EOF
