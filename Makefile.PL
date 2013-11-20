@@ -1,7 +1,6 @@
 use inc::Module::Install;
 
 name        'Google-ProtocolBuffers';
-version     5.08;
 license     'perl';
 all_from    'lib/Google/ProtocolBuffers.pm';
 
