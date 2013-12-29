@@ -11,7 +11,7 @@ use Math::BigInt;
 use Carp;
 use Data::Dumper;
 
-our $VERSION = "0.10";
+our $VERSION = "0.11";
 
 sub parsefile {
     my $self = shift;

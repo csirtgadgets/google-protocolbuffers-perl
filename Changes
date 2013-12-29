@@ -1,5 +1,9 @@
 Revision history for Perl extension Google::ProtocolBuffers
 
+0.11    2013-12-29
+    - bugfixes
+        - doc fix for -p option
+
 0.10    2013-11-20
     - bugfixes:
         - use perl 5.8, constants break on 5.6

@@ -62,7 +62,8 @@ Parse PROTO_FILE and generate output based on the options given:
   -h, --help                  Show this text and exit.
   
   --perl_out=OUT_FILE         Generate the Perl source file. (eg: lib/App/MyPackage.pm)
-  -p, --package=NANE          Specify a package name (eg: App::MyPackage)
+  -p, --package=NANE          Specify a package name (eg: App::MyPackage) to be appended
+                              in header
   
 Version: $VERSION
 EOF
