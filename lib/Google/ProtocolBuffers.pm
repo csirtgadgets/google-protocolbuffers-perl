@@ -360,7 +360,7 @@ sub getExtension {
     my $extension_name = shift;
     
     unless($extension_name){
-        return keys %{$self->_pb_fields_by_name()};
+        return \%{$self->_pb_fields_by_name()};
     }
     
     $extension_name =~ s/::/./g;
