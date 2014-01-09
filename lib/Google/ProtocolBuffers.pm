@@ -11,7 +11,7 @@ use Math::BigInt;
 use Carp;
 use Data::Dumper;
 
-our $VERSION = "0.11";
+our $VERSION = "0.12";
 
 sub parsefile {
     my $self = shift;
@@ -359,6 +359,10 @@ sub getExtension {
     my $data = (ref $self) ? $self : shift();
     my $extension_name = shift;
     
+    unless($extension_name){
+        return keys %{$self->_pb_fields_by_name()};
+    }
+    
     $extension_name =~ s/::/./g;
     my $key = "[$extension_name]";
     
@@ -370,6 +374,8 @@ sub getExtension {
         die "There is no extension '$extension_name' in '$class_name'";
     }
 }
+    
+    
 
 sub setExtension {
     my $self = shift;
