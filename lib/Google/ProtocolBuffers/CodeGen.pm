@@ -112,17 +112,17 @@ sub generate_code_of_message_or_group {
 FIELD
     }
 
-    my $oneofs_text = "            undef,";
+    my $oneofs_text = "            undef,\n";
     if ($self->can('_pb_oneofs')) {
-        $oneofs_text = "            {";
+        $oneofs_text = "            {\n";
         while (my ($name, $fields) = each %{$self->_pb_oneofs}) {
-            $oneofs_text .= "                '$name' => [";
+            $oneofs_text .= "                '$name' => [\n";
             foreach my $f (@$fields) {
-                $oneofs_text .= "                    '$f',";
+                $oneofs_text .= "                    '$f',\n";
             }
-            $oneofs_text .= "                ],";
+            $oneofs_text .= "                ],\n";
         }
-        $oneofs_text .= "            },";
+        $oneofs_text .= "            },\n";
     }
 
     my $options = '';
