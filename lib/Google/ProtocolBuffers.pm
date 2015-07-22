@@ -67,8 +67,9 @@ sub _parse {
     while (my ($type_name, $desc) = each %$types) {
         my $kind = $desc->{kind};
         my @fields;
+        my %oneofs;
         
-        if ($kind eq 'enum') {
+        if ($kind =~ /^(enum|oneof)$/) {
             next;
         } elsif ($kind eq 'group') {
             push @fields, @{$desc->{fields}};
@@ -104,6 +105,17 @@ sub _parse {
                 $e->[F_NAME] = $new_name;
                 push @fields, $e;
             }   
+
+            ##
+            ## Get names for oneof fields.
+            ##
+            foreach my $oneof_name (@{$desc->{oneofs}}) {
+                my $oneof = $types->{$oneof_name};
+                my @oneof_fields = map { $_->[F_NAME] } @{$oneof->{fields}};
+                my $new_name = ($oneof_name =~ /\.(\w+)$/) ? $1 : $oneof_name;
+                $oneofs{$new_name} = \@oneof_fields;
+                push @fields, @{$oneof->{fields}};
+            }
         } else {
             die;
         } 
@@ -144,7 +156,7 @@ sub _parse {
         ##
         my $class_name = $self->_get_class_name_for($type_name, $opts);
         if ($kind eq 'message') {
-            $self->create_message($class_name, \@fields, $opts);
+            $self->create_message($class_name, \@fields, \%oneofs, $opts);
         } elsif ($kind eq 'group') {
             $self->create_group($class_name, \@fields, $opts);
         }
@@ -200,10 +212,11 @@ sub create_message {
     my $self = shift;
     my $class_name = shift;
     my $fields = shift;
+    my $oneofs = shift;
     my $opts = shift;
     
     return $self->_create_message_or_group(
-        $class_name, $fields, $opts,
+        $class_name, $fields, $oneofs, $opts,
         'Google::ProtocolBuffers::Message'   
     );  
 }
@@ -215,7 +228,7 @@ sub create_group {
     my $opts = shift;
     
     return $self->_create_message_or_group(
-        $class_name, $fields, $opts,
+        $class_name, $fields, undef, $opts,
         'Google::ProtocolBuffers::Group'   
     );  
 }
@@ -224,6 +237,7 @@ sub _create_message_or_group {
     my $self = shift;
     my $class_name = shift;
     my $fields = shift;
+    my $oneofs = shift;
     my $opts = shift;
     my $base_class = shift;
     
@@ -282,16 +296,33 @@ sub _create_message_or_group {
     my %fields_by_field_name     = map { $_->[F_NAME]   => $_ } @field_list;
     my %fields_by_field_number   = map { $_->[F_NUMBER] => $_ } @field_list;
     
+    my $has_oneofs = defined($oneofs) && %$oneofs;
+    my %oneofs_rev;
+
+    if ($has_oneofs) {
+        while (my ($name, $fields) = each %$oneofs) {
+            %oneofs_rev = (%oneofs_rev, map { $_, $name } @$fields);
+        }
+    }
+
     no strict 'refs';
     @{"${class_name}::ISA"} = $base_class;
     *{"${class_name}::_pb_fields_list"}         = sub { \@field_list              };
     *{"${class_name}::_pb_fields_by_name"}      = sub { \%fields_by_field_name    };
     *{"${class_name}::_pb_fields_by_number"}    = sub { \%fields_by_field_number  };
+    if ($has_oneofs) {
+        *{"${class_name}::_pb_oneofs"}          = sub { $oneofs                   };
+        *{"${class_name}::_pb_oneofs_rev"}      = sub { \%oneofs_rev              };
+    }
     use strict;
     
     if ($opts->{create_accessors}) {
         no strict 'refs';
         push @{"${class_name}::ISA"}, 'Class::Accessor';
+        if ($has_oneofs) {
+            *{"${class_name}::new"} = \&Google::ProtocolBuffers::new;
+            *{"${class_name}::which_oneof"} = \&Google::ProtocolBuffers::which_oneof;
+        }
         *{"${class_name}::get"} = \&Google::ProtocolBuffers::get;
         *{"${class_name}::set"} = \&Google::ProtocolBuffers::set;
         use strict;
@@ -395,6 +426,49 @@ sub setExtension {
 }
 
 ##
+## Overide the Class::Accessor new to handle oneof fields.
+##
+sub new {
+    my ($proto, $fields) = @_;
+    my ($class) = ref $proto || $proto;
+
+    $fields = {} unless defined $fields;
+
+    my $self = bless {}, $class;
+
+    ## Set the fields
+    while (my ($key, $value) = each %$fields) {
+        if (!defined($value)) {
+            $self->{$key} = undef;
+        }
+        else {
+            $self->set($key, $value);
+        }
+    }
+
+    return $self;
+}
+
+##
+## Return which field in a oneof is set
+##
+sub which_oneof {
+    my $self = shift;
+    my $oneof = shift;
+
+    return undef unless $self->can('_pb_oneofs') &&
+                        exists($self->_pb_oneofs->{$oneof});
+
+    foreach my $f (@{$self->_pb_oneofs->{$oneof}}) {
+        if (defined($self->{$f})) {
+            return $f;
+        }
+    }
+
+    return undef;
+}
+
+##
 ## This is for Class::Accessor read-accessors, will be
 ## copied to classes from Message/Group.
 ## If no value is set, the default one will be returned.
@@ -440,6 +514,13 @@ sub set {
         $self->{$key} = [@_];   
     } else {
         Carp::confess("Wrong number of arguments received.");
+    }
+
+    # Is this a oneof field
+    if ($self->can('_pb_oneofs_rev') && exists($self->_pb_oneofs_rev->{$key})) {
+        foreach my $f (@{$self->_pb_oneofs->{$self->_pb_oneofs_rev->{$key}}}) {
+            delete $self->{$f} unless $f eq $key;
+        }
     }
 }
 

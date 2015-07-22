@@ -55,6 +55,7 @@ BEGIN
         MESSAGE => 1,
         GROUP   => 2,
         ENUM    => 3,
+        ONEOF   => 4,
     };
 }
 

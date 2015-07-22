@@ -67,7 +67,7 @@ rpc         :   "rpc" <commit> ident "(" userType ")" "returns" "(" userType ")"
 
 rpcOptions  :   "{" option(s?) "}"
 
-messageBody :   "{" <commit> ( field | enum | message | extend | extensions | group | option | ";" )(s?) "}"
+messageBody :   "{" <commit> ( field | enum | message | extend | extensions | group | option | oneof | ";" )(s?) "}"
                 { $return = [ grep {ref $_} @{$item[3]} ] }
             |   <error?> <reject>
 
@@ -77,6 +77,13 @@ group       :   label "group" <commit> ident "=" intLit messageBody
 
 field       :   label type ident "=" intLit fOptList(?) ";"
                 { $return = [field => $item{label}, $item{type}, $item{ident}, $item{intLit}, $item[6][0] ] }
+
+oneof       :   "oneof" <commit> ident "{" ( oneofField | ";" )(s?) "}"
+                { $return = [ oneof => $item{ident}, [grep {ref $_} @{$item[5]}] ] }
+            |   <error?> <reject>
+
+oneofField  :   type ident "=" intLit fOptList(?) ";"
+                { $return = [field => "optional", $item{type}, $item{ident}, $item{intLit}, $item[5][0] ] }
 
 fOptList    :   "[" fieldOption(s? /,/) "]"
                 { $return = (grep {length($_)} @{$item[2]})[0] || '' }
@@ -352,9 +359,9 @@ sub parse {
     ## For each field of a user type a fully quilified type name must be found.
     ## For each default value defined by a constant (enum), a f.q.n of enum value must be found
     ## 
-    foreach my $kind (qw/message group enum/) {
+    foreach my $kind (qw/message group enum oneof/) {
         foreach my $fqname ($symbol_table->lookup_names_of_kind($kind)) {
-            $self->{types}->{$fqname} = { kind => $kind, fields => [], extensions => [] };
+            $self->{types}->{$fqname} = { kind => $kind, fields => [], extensions => [], oneofs => [] };
         }
     }
     $self->collect_fields('', \@parse_tree);
@@ -405,17 +412,25 @@ sub collect_names {
             ## not related to previous one
             $context = $symbol_table->set_package($decl->[1]);
         } elsif ($kind eq 'message') {
-            ## message may include nested messages/enums/groups
+            ## message may include nested messages/enums/groups/oneofs
             my $child_context = $symbol_table->add('message' => $decl->[1], $context);
             $self->collect_names($child_context, $decl->[2]);
         } elsif ($kind eq 'enum') {
             my $child_context = $symbol_table->add('enum' => $decl->[1], $context);
             $self->collect_names($child_context, $decl->[2]);
         } elsif ($kind eq 'group') {
-            ## there may be nested messages/enums/groups etc. inside group
+            ## there may be nested messages/enums/groups/oneofs etc. inside group
             ## [group => $label, $ident, $intLit, $messageBody ]            
             my $child_context = $symbol_table->add('group' => $decl->[2], $context);
             $self->collect_names($child_context, $decl->[4]);
+        } elsif ($kind eq 'oneof') {
+            ## OneOfs may only contain fields, we add them to both
+            ## the current and oneof context
+            my $child_context = $symbol_table->add('oneof' => $decl->[1], $context);
+            foreach my $oneof (@{$decl->[2]}) {
+                $symbol_table->add('field' => $oneof->[3], $context);
+                $symbol_table->add('field' => $oneof->[3], $child_context);
+            }
         } elsif ($kind eq 'extend') {
             ## extend blocks are tricky: 
             ## 1) they don't create a new scope
@@ -423,7 +438,7 @@ sub collect_names {
             $self->collect_names($context, $decl->[2]);
         } elsif ($kind eq 'field') {
             ## we add fields into symbol table just to check their uniqueness 
-            ## in several extension blocks. Example:
+            ## in several extension blocks or oneofs. Example:
             ##  .proto: 
             ##      extend A { required int32 foo = 100  };
             ##      extend B { required int32 foo = 200  }; 
@@ -481,6 +496,10 @@ sub collect_fields {
             die unless $kind eq 'group';
             my $field_number = $decl->[3];  
             push @$fields_list, [$label, $type_name, $name, $field_number];
+        } elsif ($kind eq 'oneof') {
+            my $child_context = ($context) ? "$context.$decl->[1]" : $decl->[1];
+            $self->collect_fields($child_context, $decl->[2], $child_context);
+            push @{$self->{types}->{$destination_type_name}->{oneofs}}, $child_context;
         } elsif ($kind eq 'extend') {
             ## what is the fqn of the message to be extended?
             my $destination_message = $symbol_table->lookup('message' => $decl->[1], $context);
