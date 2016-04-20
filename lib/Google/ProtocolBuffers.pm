@@ -51,12 +51,12 @@ sub _parse {
     ## 
     ## 1. Create enums - they will be used as default values for fields
     ##
-    my @created_classes;
+    my @created_enums;
     while (my ($type_name, $desc) = each %$types) {
         next unless $desc->{kind} eq 'enum';
         my $class_name = $self->_get_class_name_for($type_name, $opts);
         $self->create_enum($class_name, $desc->{fields});
-        push @created_classes, $class_name;
+        push @created_enums, $class_name;
     }
     
     ##
@@ -64,6 +64,7 @@ sub _parse {
     ## Fill default values of fields and convert their 
     ## types (my_package.message_a) into Perl classes names (MyPackage::MessageA)
     ##
+    my @created_messages;
     while (my ($type_name, $desc) = each %$types) {
         my $kind = $desc->{kind};
         my @fields;
@@ -148,8 +149,11 @@ sub _parse {
         } elsif ($kind eq 'group') {
             $self->create_group($class_name, \@fields, $opts);
         }
-        push @created_classes, $class_name;
+        push @created_messages, $class_name;
     }
+
+    my @created_classes = sort @created_enums;
+    push @created_classes, sort @created_messages;
 
     ## Generate Perl code of created classes
     if ($opts->{generate_code}) {
