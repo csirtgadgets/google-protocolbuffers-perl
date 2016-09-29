@@ -5,3 +5,4 @@ MANIFEST.bak
 rebuild.sh
 .git
 dist.ini
+blib
