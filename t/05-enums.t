@@ -1,4 +1,4 @@
-use Test::More tests => 24;
+use Test::More tests => 27;
 use strict;
 use warnings;
 use Google::ProtocolBuffers;
@@ -14,7 +14,6 @@ Google::ProtocolBuffers->parsefile(
 is(ProtobufUnittest::TestAllTypes::NestedEnum::FOO(), 1);
 is(ProtobufUnittest::TestAllTypes::NestedEnum::BAR(), 2);
 is(ProtobufUnittest::TestAllTypes::NestedEnum::BAZ(), 3);
-
 
 ProtobufUnittest::TestAllTypes::NestedEnum->import(':constants');
 is(FOO(), 1);
@@ -56,3 +55,11 @@ is(IMPORT_FOO(), 7);
 is(IMPORT_BAR(), 8);
 is(IMPORT_BAZ(), 9);
 
+Google::ProtocolBuffers->parsefile(
+    "extra/enumalias.proto", 
+    { include_dir => 't' }
+);
+
+is(EnumAlias::Status::UNKNOWN(), 0);
+is(EnumAlias::Status::STARTED(), 1);
+is(EnumAlias::Status::RUNNING(), 1);
