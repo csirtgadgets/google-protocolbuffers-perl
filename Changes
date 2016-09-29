@@ -1,5 +1,8 @@
 Revision history for Perl extension Google::ProtocolBuffers
 
+0.12    2016-09-29
+    - various makefile cleanups: https://github.com/csirtgadgets/google-protocolbuffers-perl/pull/22
+
 0.11    2014-
     - bugfixes
         - bugfix to getExtension code, returns keylist when no arg is passed through
