@@ -112,6 +112,19 @@ sub generate_code_of_message_or_group {
 FIELD
     }
 
+    my $oneofs_text = "            undef,\n";
+    if ($self->can('_pb_oneofs')) {
+        $oneofs_text = "            {\n";
+        while (my ($name, $fields) = each %{$self->_pb_oneofs}) {
+            $oneofs_text .= "                '$name' => [\n";
+            foreach my $f (@$fields) {
+                $oneofs_text .= "                    '$f',\n";
+            }
+            $oneofs_text .= "                ],\n";
+        }
+        $oneofs_text .= "            },\n";
+    }
+
     my $options = '';
     foreach my $opt_name (qw/create_accessors follow_best_practice/) {
         if ($opts->{$opt_name}) {
@@ -126,6 +139,7 @@ FIELD
             [
 $fields_text
             ],
+$oneofs_text
             { $options }
         );
     }
