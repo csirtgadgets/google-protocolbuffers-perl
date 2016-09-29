@@ -1,4 +1,6 @@
-ke realclean
+make distclean
+make realclean
+rm Makefile
 rm MANIFEST
 rm META.*
 rm MYMETA.*

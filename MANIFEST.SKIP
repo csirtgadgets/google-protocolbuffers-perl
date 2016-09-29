@@ -2,6 +2,9 @@
 .tar.gz
 MANIFEST.SKIP
 MANIFEST.bak
+MYMETA.*
+Makefile$
 rebuild.sh
 .git
 dist.ini
+blib
