@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 my ($types, $wiretypes, $labels, $complex_types);
-BEGIN 
+BEGIN
 {
     ## from src/google/protobuf/descriptor.h
     $types = {
@@ -31,7 +31,7 @@ BEGIN
         TYPE_SINT64         => 18,  ## int64, ZigZag-encoded varint on the wire
     };
 
-    ## from src/google/protobuf/descriptor.h 
+    ## from src/google/protobuf/descriptor.h
     $labels = {
         LABEL_OPTIONAL      => 1,
         LABEL_REQUIRED      => 2,
@@ -39,7 +39,7 @@ BEGIN
     };
 
 
-    ## from src/google/protobuf/wire_format.h 
+    ## from src/google/protobuf/wire_format.h
     $wiretypes = {
         WIRETYPE_VARINT           => 0,
         WIRETYPE_FIXED64          => 1,
