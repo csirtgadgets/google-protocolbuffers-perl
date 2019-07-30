@@ -534,16 +534,16 @@ sub collect_fields {
 
             my $default_value = $decl->[5];
             if ($default_value && !ref $default_value) {
-            	if ($default_value eq 'true') {
-            	   	$default_value = { value => 1 };
-            	} elsif ($default_value eq 'false') {
-            		$default_value = { value => 0 };
-            	} else {
+                if ($default_value eq 'true') {
+                    $default_value = { value => 1 };
+                } elsif ($default_value eq 'false') {
+                    $default_value = { value => 0 };
+                } else {
                     ## this default is enum value
                     ## type name must be fqn of enum type
                     die unless $kind eq 'enum';
                     $default_value = $symbol_table->lookup('enum_field' => $default_value, $type_name);
-            	}
+                }
             }
             push @$fields_list, [$label, $type_name, $name, $field_number, $default_value];
         } elsif ($kind eq 'enumField') {
@@ -630,7 +630,7 @@ sub add {
         $self->_add($kind, $name, $context);
         return $fqn;
     } else {
-    	return $self->_add($kind, $name, $context);
+        return $self->_add($kind, $name, $context);
     }
 }
 
@@ -674,7 +674,7 @@ sub lookup {
 
     my ($fqn, $k) = $self->lookup_symbol($name, $context);
     unless ($kind eq $k) {
-    	confess "Error: while looking for '$kind' named '$name' in '$context', a '$k' named '$fqn' was found";
+        confess "Error: while looking for '$kind' named '$name' in '$context', a '$k' named '$fqn' was found";
     }
     return $fqn;
 }
