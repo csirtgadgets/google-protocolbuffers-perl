@@ -4,7 +4,7 @@ use warnings;
 ## FATAL substr warnings ("substring outside of string") was intended
 ## to report about incomplete messages.
 ## However, substr("abc", 3, 1) returns chr(0) without warning.
-## Thats why the code below has to check length of string and 
+## Thats why the code below has to check length of string and
 ## substring index manually
 use warnings FATAL => 'substr';
 
@@ -22,7 +22,7 @@ BEGIN {
     ## If platform doen't support them internally, they will be emulated
     ## by Math::BigInt number.
     ## Libraries below contains identically named funtions that are either
-    ## use native 64-bit ints or Math::BigInts 
+    ## use native 64-bit ints or Math::BigInts
     my $ivsize = $Config{ivsize};
     if ($ivsize>=8) {
         require 'Google/ProtocolBuffers/CodecIV64.pm';
@@ -37,19 +37,19 @@ BEGIN {
     ## Floats and doubles are packed in their native format,
     ## which is different on big-endian and litte-endian platforms
     ## Maybe create and load one of two files, like CodecIV* above?
-    my $bo = $Config{byteorder}; 
+    my $bo = $Config{byteorder};
     if ($bo =~ '^1234') {
         ## little-endian platform
-        *encode_float  = \&encode_float_le; 
-        *decode_float  = \&decode_float_le; 
-        *encode_double = \&encode_double_le; 
-        *decode_double = \&decode_double_le; 
+        *encode_float  = \&encode_float_le;
+        *decode_float  = \&decode_float_le;
+        *encode_double = \&encode_double_le;
+        *decode_double = \&decode_double_le;
     } elsif ($bo =~ '4321$') {
         ## big-endian
-        *encode_float  = \&encode_float_be; 
-        *decode_float  = \&decode_float_be; 
-        *encode_double = \&encode_double_be; 
-        *decode_double = \&decode_double_be; 
+        *encode_float  = \&encode_float_be;
+        *decode_float  = \&decode_float_be;
+        *encode_double = \&encode_double_be;
+        *decode_double = \&decode_double_be;
     }
 }
 
@@ -92,50 +92,50 @@ $primitive_type_decoders[TYPE_SINT64]   = \&decode_sint;
 my @wire_types;
 $wire_types[TYPE_DOUBLE]    = WIRETYPE_FIXED64;
 $wire_types[TYPE_FLOAT]     = WIRETYPE_FIXED32;
-$wire_types[TYPE_INT64]     = WIRETYPE_VARINT; 
+$wire_types[TYPE_INT64]     = WIRETYPE_VARINT;
 $wire_types[TYPE_UINT64]    = WIRETYPE_VARINT;
 $wire_types[TYPE_INT32]     = WIRETYPE_VARINT;
 $wire_types[TYPE_FIXED64]   = WIRETYPE_FIXED64;
 $wire_types[TYPE_FIXED32]   = WIRETYPE_FIXED32;
-$wire_types[TYPE_BOOL]      = WIRETYPE_VARINT; 
-$wire_types[TYPE_STRING]    = WIRETYPE_LENGTH_DELIMITED; 
+$wire_types[TYPE_BOOL]      = WIRETYPE_VARINT;
+$wire_types[TYPE_STRING]    = WIRETYPE_LENGTH_DELIMITED;
 ## these types were removed deliberatly from the list,
-## since they must be serialized by their own classes 
-##$wire_types[TYPE_GROUP]   
-##$wire_types[TYPE_MESSAGE] 
+## since they must be serialized by their own classes
+##$wire_types[TYPE_GROUP]
+##$wire_types[TYPE_MESSAGE]
 $wire_types[TYPE_BYTES]     = WIRETYPE_LENGTH_DELIMITED;
 $wire_types[TYPE_UINT32]    = WIRETYPE_VARINT;
 ## we create a special class for each enum, but these classes
 ## are just namespaces for constants. User can create a message
 ## field with type=TYPE_ENUM and integer value.
-$wire_types[TYPE_ENUM]      = WIRETYPE_VARINT; 
+$wire_types[TYPE_ENUM]      = WIRETYPE_VARINT;
 $wire_types[TYPE_SFIXED32]  = WIRETYPE_FIXED32;
-$wire_types[TYPE_SFIXED64]  = WIRETYPE_FIXED64; 
+$wire_types[TYPE_SFIXED64]  = WIRETYPE_FIXED64;
 $wire_types[TYPE_SINT32]    = WIRETYPE_VARINT;
 $wire_types[TYPE_SINT64]    = WIRETYPE_VARINT;
 
 
 ##
-## Class or instance method. 
+## Class or instance method.
 ## Must not be called directly, only as a method of derived class.
 ##
 ## Input: data structure (hash-ref)
 ## Output: in-memory string with serialized data
 ##
-## Example: 
+## Example:
 ##      my $str = My::Message->encode({a => 1});
-## or 
+## or
 ##      my $message = bless {a => 1}, 'My::Message';
 ##      my $str = $message->encode;
 ##
-sub encode 
+sub encode
 {
     my $self = shift;
     my $data = (ref $self) ? $self : shift();
-    
+
     ##unless (ref $data eq 'HASH') {
     ##  my $class = ref $self || $self;
-    ##    die "Hashref was expected for $self->encode; found '$data' instead";        
+    ##    die "Hashref was expected for $self->encode; found '$data' instead";
     ##}
 
     my $buf = '';
@@ -154,8 +154,8 @@ sub encode
             } else {
                 next;
             }
-        } 
-        
+        }
+
         if (ref $value && ref $value eq 'ARRAY') {
             if ($cardinality!=LABEL_REPEATED) {
                 ## Oops, several values were given for a non-repeated field.
@@ -166,7 +166,7 @@ sub encode
             }
         }
         my $is_repeated = ref $value && ref $value eq 'ARRAY';
-        
+
         $field_number <<= 3;
 
         no warnings 'numeric';
@@ -182,7 +182,7 @@ sub encode
                 encode_varint($buf, $field_number | $wire_types[$type]);
                 $encoder->($buf, $value);
             } else {
-                my $key; 
+                my $key;
                 encode_varint($key, $field_number | $wire_types[$type]);
                 foreach my $v (@$value) {
                     $buf .= $key;
@@ -192,7 +192,7 @@ sub encode
         } else {
             ##
             ## This field is one of complex types: another message, group or enum
-            ## 
+            ##
             my $kind = $type->_pb_complex_type_kind;
             if ($kind==MESSAGE) {
                 if (!$is_repeated) {
@@ -212,11 +212,11 @@ sub encode
                 }
             }
             elsif ($kind==ENUM) {
-                if (!$is_repeated) { 
+                if (!$is_repeated) {
                     encode_varint($buf, $field_number | WIRETYPE_VARINT);
                     encode_int($buf, $value);
                 } else {
-                    my $key; 
+                    my $key;
                     encode_varint($key, $field_number | WIRETYPE_VARINT);
                     foreach my $v (@$value) {
                         $buf .= $key;
@@ -225,7 +225,7 @@ sub encode
                 }
             }
             elsif ($kind==GROUP) {
-                if (!$is_repeated) { 
+                if (!$is_repeated) {
                     encode_varint($buf, $field_number | WIRETYPE_START_GROUP);
                     $buf .= encode($type, $value);
                     encode_varint($buf, $field_number | WIRETYPE_END_GROUP);
@@ -244,7 +244,7 @@ sub encode
             }
         }
     }
-    return $buf;    
+    return $buf;
 }
 
 ##
@@ -258,14 +258,14 @@ sub encode
 ## Example:
 ##      my $data = My::Message->decode($str);
 ##      ## $data is now a hashref like this: {a => 1}
-##   
+##
 sub decode {
     my $class = shift;
-    
+
     ## position must be a modifiable variable (it's passed by reference
     ## to all decode subroutines, that call each other recursively)
-    ## It's slightly quicker then passing it as an object attribute 
-    ## ($self->{pos}) to each method, but readability is poor. 
+    ## It's slightly quicker then passing it as an object attribute
+    ## ($self->{pos}) to each method, but readability is poor.
     my $pos = 0;
     if (Encode::is_utf8($_[0])) {
         ## oops, wide-character string, where did you get it from?
@@ -278,17 +278,17 @@ sub decode {
 
 ##
 ## Internal method, decodes both Messages and Groups
-## Input:   
-##  data string, 
-##  start_position (passed by reference, this must be a variable), 
+## Input:
+##  data string,
+##  start_position (passed by reference, this must be a variable),
 ##  length of message
-## Output: 
-##  for Messages: data structure 
+## Output:
+##  for Messages: data structure
 ##  for Groups: (data structure, field number of ending group tag)
 ##
 sub _decode_partial {
     my $class = shift;
-    
+
     my $length = $_[2];
     my $end_position = $_[1]+$length;
 
@@ -307,7 +307,7 @@ sub _decode_partial {
                 die "Unexpected end of group in message";
             }
         }
-        
+
         if (my $field = $fields->{$field_number}) {
             my ($cardinality, $type, $name, $field_number_, $default) = @$field;
             die unless $field_number_== $field_number;
@@ -346,7 +346,7 @@ sub _decode_partial {
                 my $kind = $type->_pb_complex_type_kind;
                 if ($kind==MESSAGE) {
                     my $message_length = decode_varint($_[0], $_[1]);
-                    $value = _decode_partial($type, $_[0], $_[1], $message_length); 
+                    $value = _decode_partial($type, $_[0], $_[1], $message_length);
                 } elsif ($kind==ENUM) {
                     $value = decode_int($_[0], $_[1]);
                 } elsif ($kind==GROUP) {
@@ -367,7 +367,7 @@ sub _decode_partial {
             _skip_unknown_field($_[0], $_[1], $field_number, $wire_type);
         }
     }
-    
+
     if ($class->_pb_complex_type_kind==GROUP) {
         die "End of group token was not found";
     } else {
@@ -376,19 +376,19 @@ sub _decode_partial {
 }
 
 ##
-## Subroutines for skipping unknown fields 
+## Subroutines for skipping unknown fields
 ##
 ## _skip_unknown_field($buffer, $position, $field_number, $wire_type)
 ##      $buffer is immutable
 ##      $position will be advanced
-##      $field_number is for groups only, and for checks that closing group 
+##      $field_number is for groups only, and for checks that closing group
 ##          field_number equals to the (given) opening field_number
 ##      $wire_type is to know lenght of field to be skipped
 ##  Returns none
 ##
 sub _skip_unknown_field {
     my ($field_number, $wire_type) = ($_[2], $_[3]);
-                
+
     if ($wire_type==WIRETYPE_VARINT) {
         _skip_varint($_[0], $_[1]);
     } elsif ($wire_type==WIRETYPE_FIXED64) {
@@ -443,7 +443,7 @@ sub _skip_varint {
 ## Encoded value of $value will be appended to $buffer, which is a string
 ## passed by reference. No meaningfull value is returned, in case of errors
 ## an exception it thrown.
-## 
+##
 ## Signature of all encode_* subs:
 ##      my $value = decode_*($buffer, $position);
 ## $buffer is a string passed by reference, no copy is performed and it
@@ -460,7 +460,7 @@ sub _skip_varint {
 ## type: varint
 ##
 ## Our implementation of varint knows about positive numbers only.
-## It's caller's responsibility to convert negative values into 
+## It's caller's responsibility to convert negative values into
 ## 64-bit positives
 ##
 sub encode_varint {
@@ -480,7 +480,7 @@ sub encode_varint {
 ## type: unsigend int (32/64)
 ##
 ## sub encode_uint - word-size sensitive
-*encode_uint = \&encode_int;    
+*encode_uint = \&encode_int;
 
 ## decode_varint always returns positive value
 sub decode_uint {
@@ -539,7 +539,7 @@ sub encode_double_le {
     $_[0] .= pack('d', $_[1]);
 }
 sub decode_double_le {
-    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]);
     my $v = unpack('d', substr($_[0], $_[1], 8));
     $_[1] += 8;
     return $v;
@@ -550,7 +550,7 @@ sub encode_double_be {
     $_[0] .= reverse pack('d', $_[1]);
 }
 sub decode_double_be {
-    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]);
     my $v = unpack('d', reverse substr($_[0], $_[1], 8));
     $_[1] += 8;
     return $v;
@@ -575,7 +575,7 @@ sub encode_string {
 
 sub decode_string {
     my $length = decode_varint(@_);
-    die BROKEN_MESSAGE() if $_[1]+$length > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+$length > length($_[0]);
     my $str = substr($_[0], $_[1], $length);
     $_[1] += $length;
     return $str;
@@ -588,9 +588,9 @@ sub encode_fixed32 {
     $_[0] .= pack('V', $_[1]);
 }
 sub decode_fixed32 {
-    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]);
     my $v = unpack('V', substr($_[0], $_[1], 4));
-    $_[1] += 4; 
+    $_[1] += 4;
     return $v;
 }
 
@@ -601,9 +601,9 @@ sub encode_sfixed32 {
     $_[0] .= pack('V', $_[1]);
 }
 sub decode_sfixed32 {
-    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]);
     my $v = unpack('V', substr($_[0], $_[1], 4));
-    $_[1] += 4; 
+    $_[1] += 4;
     return ($v>MAX_SINT32()) ? ($v-MAX_UINT32())-1 : $v;
 }
 
@@ -614,9 +614,9 @@ sub encode_float_le {
     $_[0] .= pack('f', $_[1]);
 }
 sub decode_float_le {
-    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]);
     my $v = unpack('f', substr($_[0], $_[1], 4));
-    $_[1] += 4; 
+    $_[1] += 4;
     return $v;
 }
 
@@ -624,9 +624,9 @@ sub encode_float_be {
     $_[0] .= reverse pack('f', $_[1]);
 }
 sub decode_float_be {
-    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+4 > length($_[0]);
     my $v = unpack('f', reverse substr($_[0], $_[1], 4));
-    $_[1] += 4; 
+    $_[1] += 4;
     return $v;
 }
 
