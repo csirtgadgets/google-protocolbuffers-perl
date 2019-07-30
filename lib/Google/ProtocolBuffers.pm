@@ -481,23 +481,23 @@ sub get {
     my $self = shift;
 
     if (@_==1) {
-    	## checking that $self->{$_[0]} exists is not enough,
-    	## since undef value may be set via Class::Accessor's new, e.g:
-    	## my $data = My::Message->new({ name => undef })
+        ## checking that $self->{$_[0]} exists is not enough,
+        ## since undef value may be set via Class::Accessor's new, e.g:
+        ## my $data = My::Message->new({ name => undef })
         return $self->{$_[0]} if defined $self->{$_[0]};
         my $field = $self->_pb_fields_by_name->{$_[0]};
         return $field->[F_DEFAULT];
     } elsif (@_>1) {
-    	my @rv;
-    	my $fields;
-    	foreach my $key (@_) {
-    		if (defined $self->{$key}) {
-    			push @rv, $self->{$key};
-    		} else {
-    			$fields ||= $self->_pb_fields_by_name;
-    			push @rv, $fields->{$key}->[F_DEFAULT];
-    		}
-    	}
+        my @rv;
+        my $fields;
+        foreach my $key (@_) {
+            if (defined $self->{$key}) {
+                push @rv, $self->{$key};
+            } else {
+                $fields ||= $self->_pb_fields_by_name;
+                push @rv, $fields->{$key}->[F_DEFAULT];
+            }
+        }
         return @rv;
     } else {
         Carp::confess("Wrong number of arguments received.");
@@ -509,11 +509,11 @@ sub set {
     my $key = shift;
 
     if (@_==1) {
-    	if (defined $_[0]) {
-    	   $self->{$key} = $_[0];
-    	} else {
-    		delete $self->{$key};
-    	}
+        if (defined $_[0]) {
+           $self->{$key} = $_[0];
+        } else {
+            delete $self->{$key};
+        }
     } elsif (@_>1) {
         $self->{$key} = [@_];
     } else {
@@ -836,8 +836,8 @@ occurs at run time, so parenthesis after constant's name are required.
     Google::ProtocolBuffers->parse(
         "
             enum Foo {
-        	   FOO = 1;
-        	   BAR = 2;
+               FOO = 1;
+               BAR = 2;
             }
         ",
         { generate_code => 'Foo.pm' }
@@ -863,9 +863,9 @@ definition go together:
     Google::ProtocolBuffers->parse(
         "
             message Foo {
-            	optional group Bar = 1 {
+                optional group Bar = 1 {
                     optional int32 baz = 1;
-            	}
+                }
             }
         ",
         { create_accessors => 1 }
@@ -930,11 +930,11 @@ Here is the self-explanatory example to the rules:
             package some_package;
             // message Plugh contains one regular field and three extensions
             message Plugh {
-            	optional int32 foo = 1;
+                optional int32 foo = 1;
                 extensions 10 to max;
             }
             extend Plugh {
-            	optional int32 bar = 10;
+                optional int32 bar = 10;
             }
             message Thud {
                 extend Plugh {
@@ -950,7 +950,7 @@ Here is the self-explanatory example to the rules:
             // import 'other_file.proto';
 
             extend some_package.Plugh {
-            	optional int32 qux = 12;
+                optional int32 qux = 12;
             }
 
         ",
@@ -999,7 +999,7 @@ backward compatibility will be preserved).
     ## proto:
     ## message Foo {
     ##      message Bar {
-    ##	         optional int32 a = 1 [default=12];
+    ##           optional int32 a = 1 [default=12];
     ##      }
     ##      required int32 id = 1;
     ##      repeated Bar   bars = 2;
