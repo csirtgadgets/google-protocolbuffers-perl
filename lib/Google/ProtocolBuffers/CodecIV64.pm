@@ -20,7 +20,7 @@ use constant MIN_SINT64 =>-0x8000_0000_0000_0000;
 ## Encoded value of $value will be appended to $buffer, which is a string
 ## passed by reference. No meaningfull value is returned, in case of errors
 ## an exception it thrown.
-## 
+##
 ## Signature of all encode_* subs:
 ##      my $value = decode_*($buffer, $position);
 ## $buffer is a string passed by reference, no copy is performed and it
@@ -30,11 +30,11 @@ use constant MIN_SINT64 =>-0x8000_0000_0000_0000;
 ## thrown.
 
 sub decode_varint {
-    my $v = 0;  
+    my $v = 0;
     my $shift = 0;
     my $l = length($_[0]);
     while (1) {
-        die BROKEN_MESSAGE() if $_[1] >= $l; 
+        die BROKEN_MESSAGE() if $_[1] >= $l;
         my $b = ord(substr($_[0], $_[1]++, 1));
         $v += (($b & 0x7F) << $shift);
         $shift += 7;
@@ -47,7 +47,7 @@ sub decode_varint {
 ##
 ## Both signed and unsigned 32/64 ints are encoded by this sub.
 ## Must it be more restrictive and don't allow negative values for uint types?
-## Moreover, should we check that the number is an integer and not a float, 
+## Moreover, should we check that the number is an integer and not a float,
 ## for example? And truncate int32 types to 32 bits?
 ##
 sub encode_int {
@@ -57,7 +57,7 @@ sub encode_int {
         ## We need a positive 64 bit integer, which bit representation is
         ## the same as of this negative value, static_cast<uint64>(int64).
         ## unpack('Q', pack('q', $_[1])) is slightly slower than
-        ## 2^64 + $v === (2^64-1) + $v + 1, for $v<0 
+        ## 2^64 + $v === (2^64-1) + $v + 1, for $v<0
         encode_varint($_[0], (MAX_UINT64+$_[1])+1);
     }
 }
@@ -72,7 +72,7 @@ sub decode_int {
 }
 
 ##
-## $_[1]<<1 is subject to overflow: a value that fit into 
+## $_[1]<<1 is subject to overflow: a value that fit into
 ## Perl's int (IV) may need unsigned int (UV) to fit,
 ## and I don't know how to make Perl do that cast.
 ##
@@ -94,7 +94,7 @@ sub encode_fixed64 {
 }
 
 sub decode_fixed64 {
-    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]);
     my $a = unpack('V', substr($_[0], $_[1],   4));
     my $b = unpack('V', substr($_[0], $_[1]+4, 4));
     $_[1] += 8;
@@ -102,13 +102,13 @@ sub decode_fixed64 {
 }
 
 sub encode_sfixed64 {
-    my $v = ($_[1]<0) ? (MAX_UINT64()+$_[1])+1 : $_[1]; 
+    my $v = ($_[1]<0) ? (MAX_UINT64()+$_[1])+1 : $_[1];
     $_[0] .= pack('V', $v & 0xFFFF_FFFF);
     $_[0] .= pack('V', $v >> 32);
 }
 
 sub decode_sfixed64 {
-    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]); 
+    die BROKEN_MESSAGE() if $_[1]+8 > length($_[0]);
     my $a = unpack('V', substr($_[0], $_[1],   4));
     my $b = unpack('V', substr($_[0], $_[1]+4, 4));
     $_[1] += 8;
