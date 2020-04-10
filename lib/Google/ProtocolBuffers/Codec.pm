@@ -12,7 +12,7 @@ use Config qw/%Config/;
 use Google::ProtocolBuffers::Constants qw/:all/;
 use Encode ();
 
-use constant BROKEN_MESSAGE => "Mesage is incomplete or invalid";
+use constant BROKEN_MESSAGE => "Message is incomplete or invalid";
 use constant MAX_UINT32 => 0xffff_ffff;
 use constant MAX_SINT32 => 0x7fff_ffff;
 use constant MIN_SINT32 =>-0x8000_0000;
