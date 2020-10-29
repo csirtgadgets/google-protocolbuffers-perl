@@ -218,6 +218,17 @@ sub create_message {
     my $fields = shift;
     my $oneofs = shift;
     my $opts = shift;
+    if ( !$opts && $oneofs && ref($oneofs) eq 'HASH' ) {
+        # Backcompat; originally the interface here has
+        #   create_message($class, $fields, $opts)
+        # but was later changed to
+        #   create_message($class, $fields, $oneofs, $opts);
+        # Which breaks existing users; luckily $oneofs
+        # is supposed to be an arrayref, so we can detect this
+        # and handle it.
+        $opts   = $oneofs;
+        $oneofs = undef;
+    }
     
     return $self->_create_message_or_group(
         $class_name, $fields, $oneofs, $opts,
